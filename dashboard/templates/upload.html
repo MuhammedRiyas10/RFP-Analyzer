@@ -1,367 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electrical RFP Analyzer</title>
+    <title>Electrical RFP AI - Intelligent Bid Automation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .hero-bg {
+            background: linear-gradient(135deg, #fef7f8 0%, #edf7fc 100%);
+            position: relative;
+            overflow: hidden;
         }
-
-        /* Enhanced Glass Effect */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
-        /* Spinner Animation */
-        .spinner {
-            border: 3px solid rgba(229, 231, 235, 0.5);
+        .hero-shape {
+            position: absolute;
+            background: linear-gradient(45deg, #90c2e7, #22819a);
+            opacity: 0.1;
+            filter: blur(60px);
             border-radius: 50%;
-            border-top: 3px solid #3b82f6;
+        }
+        /* Custom Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up { animation: fadeUp 0.8s ease-out forwards; }
+        
+        /* Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
             width: 24px;
             height: 24px;
-            -webkit-animation: spin 1s linear infinite;
             animation: spin 1s linear infinite;
         }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Fade In Animation */
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        /* Checkmark Animation */
-        .checkmark {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: block;
-            stroke-width: 2;
-            stroke: #22c55e;
-            stroke-miterlimit: 10;
-            box-shadow: inset 0px 0px 0px #22c55e;
-            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-        }
-
-        .step-item {
-            transition: all 0.3s ease;
-        }
-
-        .step-item.active {
-            color: #1f2937;
-            font-weight: 500;
-        }
-
-        .step-item.pending {
-            color: #9ca3af;
-        }
-
-        .step-item.completed {
-            color: #4b5563;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <script>
-        const steps = [
-            "Classifying document type...",
-            "Extracting scope of work...",
-            "Calculating material & labor costs...",
-            "Generating final proposal..."
-        ];
-
-        function showLoading() {
-            const overlay = document.getElementById('loading-overlay');
-            const stepContainer = document.getElementById('step-container');
-
-            // Show overlay with fade-in
-            overlay.classList.remove('hidden');
-
-            // Initialize steps
-            stepContainer.innerHTML = '';
-            steps.forEach((step, index) => {
-                const div = document.createElement('div');
-                div.className = `step-item flex items-center space-x-3 p-2 rounded ${index === 0 ? 'active' : 'pending'}`;
-                div.id = `step-${index}`;
-                div.innerHTML = `
-                    <div class="icon-container w-6 h-6 flex items-center justify-center">
-                        ${index === 0 ? '<div class="spinner"></div>' : '<div class="w-2 h-2 bg-gray-300 rounded-full"></div>'}
-                    </div>
-                    <span class="text-sm">${step}</span>
-                `;
-                stepContainer.appendChild(div);
-            });
-
-            let currentStep = 0;
-            const totalSteps = steps.length;
-
-            // Step animation logic
-            const interval = setInterval(() => {
-                if (currentStep < totalSteps) {
-                    // Mark current step as completed
-                    const currentEl = document.getElementById(`step-${currentStep}`);
-                    if (currentEl) {
-                        currentEl.classList.remove('active');
-                        currentEl.classList.add('completed');
-                        currentEl.querySelector('.icon-container').innerHTML = `
-                            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        `;
-                    }
-
-                    currentStep++;
-
-                    // Activate next step if exists
-                    if (currentStep < totalSteps) {
-                        const nextEl = document.getElementById(`step-${currentStep}`);
-                        if (nextEl) {
-                            nextEl.classList.remove('pending');
-                            nextEl.classList.add('active');
-                            nextEl.querySelector('.icon-container').innerHTML = '<div class="spinner"></div>';
-                        }
-                    } else {
-                        // All steps done, keep spinning on the last message or show "Finalizing"
-                        clearInterval(interval);
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#90c2e7',
+                        secondary: '#fef7f8',
+                        neutral: '#cdd4dd',
+                        accent: '#22819a',
+                        dark: '#1e293b'
                     }
                 }
-            }, 1200); // 1.2 seconds per step
+            }
         }
     </script>
 </head>
+<body class="bg-secondary text-dark antialiased">
 
-<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-4">
-
-    <!-- Enhanced Loading Overlay -->
-    <div id="loading-overlay"
-        class="fixed inset-0 bg-gray-900/60 z-50 hidden flex items-center justify-center backdrop-blur-md transition-all duration-300">
-        <div
-            class="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl flex flex-col w-full max-w-sm border border-white/20 animate-fade-in mx-4">
-
-            <!-- Header -->
-            <div class="text-center mb-6">
-                <div
-                    class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 text-blue-600 mb-4">
-                    <svg class="w-6 h-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                    </svg>
-                </div>
-                <h2 class="text-xl font-bold text-gray-900">Processing Proposal</h2>
-                <p class="text-sm text-gray-500 mt-1">Our AI is analyzing your RFP...</p>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-dark/60 backdrop-blur-md transition-all duration-300">
+        <div class="bg-white/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl max-w-sm w-full mx-4 border border-white/40 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent animate-pulse"></div>
+            
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-accent mb-6 shadow-sm">
+                <svg class="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
             </div>
-
-            <!-- Steps Container -->
-            <div id="step-container" class="space-y-3 pl-2">
-                <!-- Steps will be injected here by JS -->
-            </div>
-
-            <!-- Footer hint -->
-            <div class="mt-8 text-center">
-                <p class="text-xs text-gray-400">Please do not close this window.</p>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Analyzing RFP</h3>
+            
+            <div id="step-container" class="space-y-3 text-left mt-6 pl-4 border-l-2 border-neutral">
+                <!-- Steps injected by JS -->
             </div>
         </div>
     </div>
 
-    <!-- Background Decoration -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div
-            class="absolute top-0 left-1/4 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob">
-        </div>
-        <div
-            class="absolute top-0 right-1/4 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000">
-        </div>
-        <div
-            class="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000">
-        </div>
-    </div>
-
-    <!-- Navbar / Header -->
-    <header class="w-full max-w-4xl mx-auto mb-8 text-center">
-        <div
-            class="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-white shadow-sm text-blue-600 ring-1 ring-gray-100">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-        </div>
-        <h1 class="text-4xl font-bold text-gray-900 tracking-tight mb-2">Electrical RFP Analyzer</h1>
-        <p class="text-lg text-gray-600">AI-Powered Electrical Bid Automation</p>
-    </header>
-
-    <!-- Main Upload Card -->
-    <main
-        class="w-full max-w-2xl bg-white/80 glass-effect rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative z-10">
-
-        <!-- Header Strip -->
-        <div class="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 w-full"></div>
-
-        <div class="p-8">
-            {% if error %}
-            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-red-700 font-medium">{{ error }}</p>
-                    </div>
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 bg-white/80 backdrop-blur-md border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white font-bold text-lg mr-2">E</div>
+                    <span class="font-bold text-xl tracking-tight text-gray-900">Electrical RFP AI</span>
                 </div>
+                <a href="#get-started" class="bg-accent hover:bg-[#1a657a] text-white px-5 py-2 rounded-full font-medium text-sm transition-all shadow-lg shadow-accent/20">
+                    Get Started
+                </a>
             </div>
-            {% endif %}
+        </div>
+    </nav>
 
-            <form method="post" enctype="multipart/form-data" class="space-y-8" onsubmit="showLoading()">
-                {% csrf_token %}
+    <!-- Hero Section -->
+    <section class="hero-bg min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center relative">
+        <!-- Background Shapes -->
+        <div class="hero-shape w-96 h-96 top-0 left-0 -translate-x-1/3 -translate-y-1/3"></div>
+        <div class="hero-shape w-[30rem] h-[30rem] bottom-0 right-0 translate-x-1/3 translate-y-1/3 bg-primary"></div>
 
-                <!-- File Upload Section -->
-                <div class="group">
-                    <label class="block text-sm font-semibold text-gray-900 mb-2">Upload RFP Document (PDF)</label>
-                    <label for="file-upload"
-                        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-500 hover:bg-blue-50/50 transition-all duration-200 cursor-pointer relative bg-gray-50/50">
-                        <div class="space-y-1 text-center">
-                            <div
-                                class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-3 group-hover:scale-110 transition-transform duration-200">
-                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
+        <div class="max-w-4xl mx-auto text-center z-10 animate-fade-up">
+            <span class="inline-block px-3 py-1 rounded-full bg-blue-100 text-accent text-xs font-semibold mb-6 tracking-wide uppercase">
+                New Enterprise Engine v2.0
+            </span>
+            <h1 class="text-5xl sm:text-7xl font-extrabold text-gray-900 tracking-tight mb-6 leading-tight">
+                Automate Your <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-primary">Electrical Bids</span>
+            </h1>
+            <p class="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Transform complex RFP documents into professional proposals in seconds using advanced AI extraction and deterministic estimation.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#get-started" class="bg-accent hover:bg-[#1a657a] text-white px-8 py-4 rounded-xl font-bold text-lg transition-transform hover:-translate-y-1 shadow-xl shadow-accent/20">
+                    Parse Request Now
+                </a>
+                <a href="#features" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-8 py-4 rounded-xl font-semibold text-lg transition-colors">
+                    View Features
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div id="features" class="max-w-7xl mx-auto mt-24 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 z-10 w-full animate-fade-up" style="animation-delay: 0.2s">
+            <!-- Feature 1 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-neutral/50 hover:shadow-md transition-shadow group">
+                <div class="w-12 h-12 bg-blue-50 text-accent rounded-xl flex items-center justify-center mb-4 group-hover:bg-accent group-hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 mb-2">OCR Extraction</h3>
+                <p class="text-sm text-gray-500">Instantly converts scanned PDFs and images into machine-readable text.</p>
+            </div>
+            <!-- Feature 2 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-neutral/50 hover:shadow-md transition-shadow group">
+                <div class="w-12 h-12 bg-blue-50 text-accent rounded-xl flex items-center justify-center mb-4 group-hover:bg-accent group-hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 mb-2">AI Scope Detection</h3>
+                <p class="text-sm text-gray-500">Identifies project type, location, and key requirements automatically.</p>
+            </div>
+            <!-- Feature 3 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-neutral/50 hover:shadow-md transition-shadow group">
+                <div class="w-12 h-12 bg-blue-50 text-accent rounded-xl flex items-center justify-center mb-4 group-hover:bg-accent group-hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 mb-2">Smart Estimation</h3>
+                <p class="text-sm text-gray-500">Calculates labor and material costs using deterministic models.</p>
+            </div>
+            <!-- Feature 4 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-neutral/50 hover:shadow-md transition-shadow group">
+                <div class="w-12 h-12 bg-blue-50 text-accent rounded-xl flex items-center justify-center mb-4 group-hover:bg-accent group-hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 mb-2">Proposal Gen</h3>
+                <p class="text-sm text-gray-500">Creates formatted, professional PDFs ready for client sign-off.</p>
+            </div>
+        </div>
+
+        <!-- Dynamic Upload Section -->
+        <div id="get-started" class="mt-24 w-full max-w-2xl animate-fade-up" style="animation-delay: 0.4s">
+            <div class="glass rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-accent to-primary"></div>
+                
+                <h2 class="text-2xl font-bold text-center mb-8">Start Your Analysis</h2>
+                
+                {% if error %}
+                <div class="bg-red-50 text-red-700 p-4 rounded-xl mb-6 text-sm border border-red-200">
+                    ⚠️ {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data" class="space-y-6" onsubmit="startAnalysis()">
+                    {% csrf_token %}
+                    
+                    <!-- File Drop -->
+                    <div class="group relative">
+                        <label for="file-upload" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-neutral rounded-2xl cursor-pointer bg-white/50 hover:bg-white hover:border-accent transition-all duration-300">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-10 h-10 mb-3 text-neutral group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                <p class="mb-2 text-sm text-gray-500"><span class="font-semibold text-accent">Click to upload</span> or drag and drop</p>
+                                <p class="text-xs text-gray-400" id="file-name">PDF or JPG (MAX. 10MB)</p>
                             </div>
-                            <div class="flex text-sm text-gray-600 justify-center">
-                                <span
-                                    class="relative rounded-md font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                    <span>Click to upload</span>
-                                    <input id="file-upload" name="rfp_file" type="file" class="sr-only"
-                                        accept=".pdf,.txt">
-                                </span>
-                                <p class="pl-1">or drag and drop</p>
-                            </div>
-                            <p class="text-xs text-gray-500" id="file-name-display">PDF or TXT up to 10MB</p>
-                        </div>
-                    </label>
-                </div>
-
-                <!-- Divider -->
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-200"></div>
+                            <input id="file-upload" name="rfp_file" type="file" class="hidden" />
+                        </label>
                     </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-4 bg-white text-gray-400 font-medium">OR</span>
-                    </div>
-                </div>
 
-                <!-- Text Area Section -->
-                <div>
-                    <label for="rfp_text" class="block text-sm font-semibold text-gray-900 mb-2">Paste RFP Text</label>
-                    <div class="mt-1 relative rounded-md shadow-sm">
-                        <textarea id="rfp_text" name="rfp_text" rows="5"
-                            class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl p-4 transition-shadow shadow-sm hover:shadow-md resize-none"
-                            placeholder="Paste the raw content of the RFP here if you don't have a file..."></textarea>
+                    <div class="relative flex py-2 items-center">
+                        <div class="flex-grow border-t border-neutral"></div>
+                        <span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase tracking-wider">Or paste text</span>
+                        <div class="flex-grow border-t border-neutral"></div>
                     </div>
-                </div>
 
-                <!-- Submit Button -->
-                <div class="pt-2">
-                    <button type="submit"
-                        class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed">
-                        Analyze RFP Document
+                    <textarea name="rfp_text" rows="4" class="w-full rounded-xl border-neutral bg-white/50 focus:bg-white focus:border-accent focus:ring-accent p-4 text-sm transition-all" placeholder="Paste RFP content here..."></textarea>
+
+                    <button type="submit" class="w-full bg-accent hover:bg-[#1a657a] text-white font-bold py-4 rounded-xl shadow-lg shadow-accent/20 transition-transform active:scale-95">
+                        Analyze Document
                     </button>
-                    <p class="mt-3 text-center text-xs text-gray-400">
-                        By analyzing, you agree to our processing terms.
-                    </p>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </main>
 
-    <!-- Simple Footer -->
-    <footer class="mt-8 text-center text-gray-400 text-sm">
-        &copy; 2024 Electrical RFP Analyzer. All rights reserved.
+    </section>
+
+    <footer class="bg-white border-t border-neutral py-12 text-center">
+        <p class="text-gray-400 text-sm">&copy; 2024 Electrical RFP AI. All rights reserved.</p>
     </footer>
 
     <script>
-        // File upload handling
+        // File Upload Logic
         const fileInput = document.getElementById('file-upload');
-        const fileNameDisplay = document.getElementById('file-name-display');
-        const dropZone = fileInput.closest('label');
+        const fileNameDisplay = document.getElementById('file-name');
 
-        fileInput.addEventListener('change', function (e) {
-            handleFile(e.target.files[0]);
-        });
-
-        // Drag and drop events
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            dropZone.classList.add('border-blue-500', 'bg-blue-50/50');
-        }
-
-        function unhighlight(e) {
-            dropZone.classList.remove('border-blue-500', 'bg-blue-50/50');
-        }
-
-        dropZone.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length) {
-                fileInput.files = files; // Update input files
-                handleFile(files[0]);
+        fileInput.addEventListener('change', function(e) {
+            if(e.target.files.length > 0) {
+                fileNameDisplay.innerHTML = `<span class="text-accent font-bold">${e.target.files[0].name}</span>`;
+                fileNameDisplay.parentElement.parentElement.classList.add('border-accent', 'bg-blue-50/50');
             }
-        }
+        });
 
-        function handleFile(file) {
-            if (file) {
-                fileNameDisplay.innerHTML = `<span class="text-blue-600 font-semibold">${file.name}</span>`;
-                dropZone.classList.add('border-blue-500', 'bg-blue-50/20');
-            }
+        // Loading Logic
+        const steps = [
+            "Classifying document structure...",
+            "Extracting scope and requirements...",
+            "Calculating labor & material costs...",
+            "Drafting professional proposal..."
+        ];
+        
+        function startAnalysis() {
+            const overlay = document.getElementById('loading-overlay');
+            const container = document.getElementById('step-container');
+            overlay.classList.remove('hidden');
+            
+            // Loop steps
+            let delay = 0;
+            steps.forEach((step, i) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center text-sm text-gray-600 animate-fade-in";
+                    div.innerHTML = `
+                        <span class="w-2 h-2 rounded-full bg-accent mr-3 animate-pulse"></span>
+                        ${step}
+                    `;
+                    container.appendChild(div);
+                }, delay);
+                delay += 1200;
+            });
         }
     </script>
 </body>
-
 </html>

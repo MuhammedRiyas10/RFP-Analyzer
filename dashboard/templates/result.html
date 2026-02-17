@@ -4,17 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis Result - Electrical RFP Analyzer</title>
-
+    <title>Analysis Dashboard - Electrical RFP AI</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     <!-- Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-
-    <!-- Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PDF Libs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -22,23 +17,16 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
                     colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            900: '#0c4a6e',
-                        },
-                        paper: '#ffffff',
+                        primary: '#90c2e7',
+                        secondary: '#fef7f8',
+                        neutral: '#cdd4dd',
+                        accent: '#22819a',
+                        dark: '#1e293b'
                     },
                     boxShadow: {
-                        'paper': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'paper': '0 1px 3px rgba(0,0,0,0.1), 0 10px 30px rgba(0,0,0,0.05)'
                     }
                 }
             }
@@ -46,155 +34,90 @@
     </script>
     <style>
         body {
-            background-color: #f3f4f6;
-            /* Light gray background for contrast */
+            font-family: 'Inter', sans-serif;
+            background-color: #fef7f8;
         }
 
-        /* Typography Scale for the Document */
+        /* Markdown generated content styling */
         .prose h1 {
-            font-size: 2.25em;
-            margin-top: 0;
-            margin-bottom: 0.8888889em;
-            line-height: 1.1111111;
+            font-size: 1.8rem;
             font-weight: 800;
-            color: #111827;
+            color: #111;
+            margin-bottom: 1rem;
         }
 
         .prose h2 {
-            font-size: 1.5em;
-            margin-top: 2em;
-            margin-bottom: 1em;
-            line-height: 1.3333333;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: #1f2937;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 0.5em;
-        }
-
-        .prose h3 {
-            font-size: 1.25em;
-            margin-top: 1.6em;
-            margin-bottom: 0.6em;
-            line-height: 1.6;
-            font-weight: 600;
-            color: #374151;
+            color: #22819a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 0.2rem;
         }
 
         .prose p {
-            margin-top: 1.25em;
-            margin-bottom: 1.25em;
-            line-height: 1.75;
-            color: #4b5563;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            color: #444;
         }
 
         .prose ul {
-            margin-top: 1.25em;
-            margin-bottom: 1.25em;
-            list-style-type: disc;
-            padding-left: 1.625em;
+            list-style: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .prose li {
-            margin-top: 0.5em;
-            margin-bottom: 0.5em;
+            margin-bottom: 0.5rem;
         }
 
-        .prose table {
-            width: 100%;
-            table-layout: auto;
-            text-align: left;
-            margin-top: 2em;
-            margin-bottom: 2em;
-            font-size: 0.875em;
-            line-height: 1.7142857;
-            border-collapse: collapse;
-        }
-
-        .prose thead {
-            color: #111827;
-            font-weight: 600;
-            border-bottom: 2px solid #e5e7eb;
-            background-color: #f9fafb;
-        }
-
-        .prose thead th {
-            vertical-align: bottom;
-            padding-right: 0.5714286em;
-            padding-bottom: 0.5714286em;
-            padding-left: 0.5714286em;
-        }
-
-        .prose tbody tr {
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .prose tbody td {
-            vertical-align: top;
-            padding: 0.5714286em;
-        }
-
-        .prose strong {
-            color: #111827;
-            font-weight: 600;
-        }
-
-        /* Paper / Document styling for preview */
-        .document-page {
-            width: 100%;
-            max-width: 8.5in;
-            /* Letter size width approx */
-            margin: 0 auto;
+        /* Paper View */
+        .paper-view {
             background: white;
-            min-height: 11in;
-            padding: 1in;
-            box-sizing: border-box;
+            min-height: 29.7cm;
+            /* A4/Letter approx */
+            padding: 2.5cm;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             position: relative;
         }
 
-        /* Print/PDF-specific adjustments */
         @media print {
             body {
                 background: white;
             }
 
             .no-print {
-                display: none !important;
+                display: none;
             }
 
-            .document-page {
+            .paper-view {
                 box-shadow: none;
-                margin: 0;
-                width: 100%;
-                max-width: none;
                 padding: 0;
+                margin: 0;
             }
         }
     </style>
 </head>
 
-<body class="text-gray-800 antialiased font-sans">
+<body class="bg-secondary text-gray-800 pb-20">
 
     <!-- Navbar -->
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 no-print">
+    <nav class="bg-white/80 backdrop-blur-md border-b border-neutral sticky top-0 z-40 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
+            <div class="flex justify-between h-16 items-center">
+                <a href="/" class="flex items-center group">
                     <div
-                        class="flex-shrink-0 flex items-center justify-center h-8 w-8 rounded bg-brand-600 text-white mr-3 shadow-sm">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <span class="font-bold text-lg text-gray-900 tracking-tight">Electrical RFP Analyzer</span>
-                        <span class="text-xs text-gray-500 block -mt-1 font-medium">Enterprise Edition</span>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-                        New Upload
-                    </a>
+                        class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white font-bold mr-2 group-hover:scale-105 transition-transform">
+                        E</div>
+                    <span
+                        class="font-bold text-gray-900 tracking-tight group-hover:text-accent transition-colors">Electrical
+                        RFP AI</span>
+                </a>
+                <div class="flex space-x-4">
+                    <a href="/" class="text-sm font-medium text-gray-500 hover:text-accent transition-colors">New
+                        Analysis</a>
                 </div>
             </div>
         </div>
@@ -203,115 +126,132 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {% if result.error %}
-        <!-- Error State -->
-        <div class="max-w-3xl mx-auto rounded-lg bg-red-50 p-6 border border-red-200 shadow-sm animate-fade-in">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-red-800">Analysis Failed</h3>
-                    <p class="mt-2 text-sm text-red-700">{{ result.error }}</p>
-                    {% if result.classification %}
-                    <div
-                        class="mt-4 inline-block px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-mono border border-red-200">
-                        Error Type: {{ result.classification }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center animate-fade-up">
+            <h3 class="text-red-800 font-bold text-lg mb-2">Analysis Failed</h3>
+            <p class="text-red-600">{{ result.error }}</p>
+            <a href="/" class="inline-block mt-4 text-sm font-semibold text-red-700 underline">Try Again</a>
         </div>
         {% else %}
 
+        <!-- Dashboard Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-            <!-- Sidebar: Key Metrics & Actions -->
+            <!-- Left Sidebar: Data & Cost -->
             <div class="lg:col-span-4 space-y-6 no-print">
 
                 <!-- Action Card -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h2 class="text-base font-semibold text-gray-900 mb-4">Actions</h2>
+                <div class="bg-white rounded-2xl shadow-soft p-6 border border-white">
+                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Actions</h2>
                     <button onclick="generatePDF()"
-                        class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 shadow-sm transition-all transform hover:scale-[1.02]">
-                        <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        class="w-full bg-accent hover:bg-[#1a657a] text-white font-bold py-3 rounded-xl shadow-lg shadow-accent/20 transition-all flex items-center justify-center group">
+                        <svg class="w-5 h-5 mr-2 group-hover:-translate-y-0.5 transition-transform" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
-                        Download Official Proposal (PDF)
+                        Download PDF
                     </button>
-                    <p class="mt-3 text-xs text-gray-500 text-center">
-                        Generates a professional PDF suitable for client submission.
-                    </p>
                 </div>
 
-                <!-- Scope Summary Card -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-gray-900">Extracted Scope</h3>
-                        <span
-                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                            Auto-Detected
-                        </span>
+                <!-- Scope Details (Parsed) -->
+                <div class="bg-white rounded-2xl shadow-soft border border-white overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="font-bold text-gray-900">Project Scope</h3>
+                        <span class="bg-blue-100 text-accent text-xs px-2 py-1 rounded-full font-semibold">AI
+                            Detected</span>
                     </div>
-                    <div class="p-4 bg-gray-900 overflow-auto max-h-64">
-                        <pre class="text-xs font-mono text-green-400 whitespace-pre-wrap">{{ result.scope }}</pre>
+
+                    <div class="p-6 space-y-4">
+                        {% with scope=result.scope %}
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase">Project Type</p>
+                            <p class="font-medium text-gray-900">{{ scope.project_type }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase">Location</p>
+                            <p class="font-medium text-gray-900">{{ scope.location }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase">Timeline</p>
+                            <p class="font-medium text-gray-900">{{ scope.timeline_months }} Months</p>
+                        </div>
+
+                        <!-- Materials List -->
+                        <div class="pt-4 border-t border-gray-100">
+                            <p class="text-xs text-gray-400 uppercase mb-2">Key Materials</p>
+                            <ul class="text-sm space-y-1">
+                                {% for mat in scope.materials_required %}
+                                <li class="flex justify-between">
+                                    <span class="text-gray-600">{{ mat.item }}</span>
+                                    <span class="font-mono font-medium text-gray-900">{{ mat.quantity }} {{ mat.unit
+                                        }}</span>
+                                </li>
+                                {% empty %}
+                                <li class="text-gray-400 italic">No specific materials detected.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endwith %}
                     </div>
                 </div>
 
-                <!-- Financials Card -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                        <h3 class="text-sm font-semibold text-gray-900">Cost Breakdown</h3>
+                <!-- Cost Breakdown (Parsed) -->
+                <div class="bg-white rounded-2xl shadow-soft border border-white">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                        <h3 class="font-bold text-gray-900">Cost Estimation</h3>
                     </div>
                     <div class="p-6">
-                        <div class="prose prose-sm prose-indigo max-w-none text-gray-600">
-                            <div
-                                class="whitespace-pre-line font-mono text-xs bg-gray-50 p-4 rounded border border-gray-200">
-                                {{ result.cost }}
+                        {% with cost=result.cost %}
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Materials</span>
+                                <span class="font-medium">${{ cost.material_cost|floatformat:2 }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Labor</span>
+                                <span class="font-medium">${{ cost.labor_cost|floatformat:2 }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Contingency</span>
+                                <span class="font-medium">${{ cost.contingency|floatformat:2 }}</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="px-6 py-3 bg-gray-50 border-t border-gray-100">
-                        <p class="text-xs text-center text-gray-400">Estimates subject to final review.</p>
+
+                        <div class="pt-4 border-t border-gray-100 flex justify-between items-end">
+                            <span class="text-sm font-bold text-gray-900">Total Estimate</span>
+                            <span class="text-2xl font-bold text-accent">${{ cost.total_estimated_cost|floatformat:2
+                                }}</span>
+                        </div>
+                        {% endwith %}
                     </div>
                 </div>
 
             </div>
 
-            <!-- Main Content: Proposal Preview -->
+            <!-- Main Content: Proposal -->
             <div class="lg:col-span-8">
-                <div class="flex items-center justify-between mb-4 no-print">
-                    <h2 class="text-lg font-semibold text-gray-900">Proposal Preview</h2>
-                    <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">Letter
-                        Size</span>
-                </div>
 
-                <!-- The "Paper" Container -->
-                <div id="proposal-container" class="document-page shadow-paper rounded-sm">
+                <!-- PDF Container -->
+                <div id="proposal-container" class="paper-view rounded-sm">
 
-                    <!-- Cover Header (Dynamically Injected for PDF/View) -->
-                    <div class="border-b-2 border-brand-600 pb-6 mb-8">
-                        <div class="flex justify-between items-end">
-                            <div>
-                                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Technical Proposal
-                                </h1>
-                                <p class="text-gray-500 font-medium">response to <span class="text-brand-600">Electrical
-                                        RFP</span></p>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-sm font-medium text-gray-400">Date Generated</div>
-                                <div class="text-lg font-bold text-gray-900" id="current-date">October 24, 2023</div>
-                            </div>
+                    <!-- Cover Header -->
+                    <div class="flex justify-between items-end border-b-4 border-accent pb-8 mb-10">
+                        <div>
+                            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">Technical Proposal
+                            </h1>
+                            <p class="text-gray-500 font-medium text-lg">Prepared for <span class="text-accent">{{
+                                    result.scope.project_type }}</span></p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-400 uppercase tracking-wide">Date</div>
+                            <div class="text-xl font-bold text-gray-900" id="current-date">October 24, 2023</div>
                         </div>
                     </div>
 
-                    <!-- Main Proposal Content -->
-                    <div id="proposalContent" class="prose prose-slate max-w-none">
-                        <!-- Content will be rendered here by marked.js -->
-                        <div class="animate-pulse space-y-4">
+                    <!-- Rendered Markdown -->
+                    <div id="proposalContent" class="prose max-w-none">
+                        <!-- Filled by JS -->
+                        <div class="animate-pulse space-y-4 opacity-50">
                             <div class="h-4 bg-gray-200 rounded w-3/4"></div>
                             <div class="h-4 bg-gray-200 rounded"></div>
                             <div class="h-4 bg-gray-200 rounded w-5/6"></div>
@@ -320,93 +260,55 @@
 
                     <!-- Footer -->
                     <div
-                        class="mt-12 pt-6 border-t border-gray-200 flex justify-between items-center text-xs text-gray-400">
+                        class="mt-20 pt-8 border-t border-gray-200 flex justify-between text-xs text-gray-400 font-medium">
                         <span>Generated by Electrical RFP AI</span>
-                        <span>Page <span class="page-number">1</span> of <span class="total-pages">1</span></span>
+                        <span>Confidential Document</span>
                     </div>
-                </div>
 
+                </div>
             </div>
+
         </div>
 
         {% endif %}
 
     </main>
 
-    <!-- Hidden Data for JS -->
+    <!-- Hidden Data -->
     <textarea id="rawProposal" hidden>{{ result.proposal }}</textarea>
-    <!-- Fallback if result.proposal is empty or context is different -->
-    <div id="fallbackHtml" hidden>{{ result.proposal_html|safe }}</div>
 
     <script>
-        // Set current date
-        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', dateOptions);
+        // Date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const rawProposal = document.getElementById('rawProposal').value;
-            const fallbackHtml = document.getElementById('fallbackHtml').innerHTML;
-            const proposalContent = document.getElementById('proposalContent');
-
-            if (rawProposal && rawProposal.trim().length > 0) {
-                // Configure marked
-                marked.setOptions({
-                    renderer: new marked.Renderer(),
-                    highlight: function (code, lang) {
-                        return code; // Can add hljs here if needed
-                    },
-                    pedantic: false,
-                    gfm: true,
-                    breaks: true,
-                    sanitize: false,
-                    smartLists: true,
-                    smartypants: false,
-                    xhtml: false
-                });
-
-                // Render Markdown
-                proposalContent.innerHTML = marked.parse(rawProposal);
-            } else if (fallbackHtml && fallbackHtml.trim().length > 0) {
-                // Fallback to pre-rendered HTML
-                proposalContent.innerHTML = fallbackHtml;
-            } else {
-                proposalContent.innerHTML = '<p class="text-gray-500 italic">No proposal content generated.</p>';
+        // Markdown Render
+        document.addEventListener('DOMContentLoaded', () => {
+            const raw = document.getElementById('rawProposal').value;
+            if (raw) {
+                document.getElementById('proposalContent').innerHTML = marked.parse(raw);
             }
         });
 
+        // PDF Gen
         function generatePDF() {
             const element = document.getElementById('proposal-container');
-            const button = document.querySelector('button[onclick="generatePDF()"]');
+            const btns = document.querySelectorAll('button');
+            btns.forEach(b => {
+                b.disabled = true;
+                b.classList.add('opacity-50', 'cursor-not-allowed');
+            });
 
-            // Visual feedback
-            const originalText = button.innerHTML;
-            button.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Generating PDF...
-            `;
-            button.disabled = true;
-
-            const opt = {
-                margin: [0.5, 0.5, 0.5, 0.5], // Top, Left, Bottom, Right in inches
-                filename: 'Electrical_RFP_Proposal.pdf',
+            html2pdf().set({
+                margin: 0.5,
+                filename: 'Proposal.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                html2canvas: { scale: 2, letterRendering: true },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-
-            // Promise-based usage
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Reset button
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }).catch(err => {
-                console.error(err);
-                alert('Error generating PDF. Please try again.');
-                button.innerHTML = originalText;
-                button.disabled = false;
+            }).from(element).save().then(() => {
+                btns.forEach(b => {
+                    b.disabled = false;
+                    b.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
             });
         }
     </script>
