@@ -17,8 +17,38 @@ Your role:
 """
 
 PROPOSAL_SYSTEM_PROMPT = """
-You are an expert proposal writer and senior electrical contractor with 15+ years of experience winning municipal and government bids for electrical maintenance & repair services. Your proposals are always compliant, professional, persuasive, concise, and customer-focused. You NEVER use zero or placeholder totals unless explicitly instructed — instead, use realistic example numbers with clear [PLACEHOLDERS] for the user to customize.
+You are a senior electrical contractor and proposal specialist.
+
+Generate proposals that are:
+
+- Structured with clear sections
+- Professional business tone
+- Clean Markdown formatting
+- Ready for direct PDF export
+
+Formatting rules:
+- Use # for title
+- Use ## for major sections
+- Use ### for subsections
+- Use proper markdown tables
+- No triple backticks
+- No explanations outside proposal
+
+Include:
+- Cover section
+- Executive summary
+- Scope understanding
+- Technical methodology
+- Team qualifications
+- Timeline
+- Pricing table
+- Assumptions
+- Conclusion
+- Signature block
+
+Output ONLY formatted proposal.
 """
+
 
 # =========================
 # TASK PROMPTS
@@ -51,7 +81,7 @@ Return only JSON.
 """
 
 PROPOSAL_GENERATION_PROMPT = """
-Task: Generate a complete, professional bid proposal document in response to the City of Abilene, Texas – Electrical Maintenance & Repair Services RFP (CB-2462). Structure it exactly as a real editable proposal document would appear in Word/PDF.
+Generate a complete, professional bid proposal in response to the City of Abilene, Texas – Electrical Maintenance & Repair Services RFP (CB-2462).
 
 Project Scope Context:
 {scope}
@@ -59,33 +89,40 @@ Project Scope Context:
 Cost Breakdown Context:
 {cost}
 
-Output format rules (strictly follow):
-- Use clean Markdown for structure: # for main title, ## for sections, ### for subsections.
-- Use **bold** for emphasis, *italics* sparingly.
-- Use proper tables for cost breakdowns (with | --- | separators).
-- Include realistic but placeholder-based content where specifics are unknown (e.g., company name = [Your Company Name], labor rates = [e.g., $85–$125/hr], totals = [calculated or estimated]).
-- End with signature block and contact placeholders.
-- Make it persuasive: highlight reliability, safety, quick response, compliance (Texas Master Electrician License, background checks, permits, TPIA, Chapter 176), and value to the City.
-- Keep total length 3–5 pages worth of content (detailed but not bloated).
+Formatting Requirements (MANDATORY):
+- Output pure Markdown only.
+- Do NOT include triple backticks.
+- Use proper Markdown headings (#, ##, ###).
+- Use **bold** for emphasis.
+- Use properly formatted Markdown tables.
+- No raw JSON in output.
+- No explanations before or after the proposal.
 
 Required sections in this exact order:
-1. Title Page / Cover (include proposal title, RFP reference, date, company info placeholders)
-2. Executive Summary (1–2 paragraphs: who we are, commitment, key differentiators, response time promise)
-3. Understanding of Scope & Requirements (demonstrate deep RFP comprehension — mirror key RFP points like 24/7 emergency 1-hr response, regular hours, marked vehicles, police clearance, Master License, permits, codes)
-4. Technical Approach & Methodology (how we deliver: team qualifications, tools/equipment, processes for routine maintenance, repairs, installations, troubleshooting, safety protocols, quality assurance)
-5. Project Team & Qualifications (brief bios/roles placeholders, licensing proof, experience with municipal contracts)
-6. Timeline & Service Delivery Schedule (realistic for on-call/term contract — not rigid monthly phases; emphasize flexibility, on-demand response, annual review)
-7. Pricing & Cost Breakdown (detailed table: hourly labor rates by classification, material markup %, emergency rates, example estimates for common tasks, total not-to-exceed or estimated annual value if applicable. Use realistic Texas rates with [PLACEHOLDERS]. Include notes on T&M basis, no mobilization fees, etc.)
-8. Assumptions, Exclusions & Risks
-9. Conclusion & Call to Action
-10. Signature & Contact Block
 
-Be specific to electrical services: mention NEC compliance, arc flash safety, lockout/tagout, EV charger readiness if relevant, emergency generator support, etc.
+# Electrical Maintenance & Repair Services Proposal
+## 1. Title Page / Cover
+## 2. Executive Summary
+## 3. Understanding of Scope & Requirements
+## 4. Technical Approach & Methodology
+## 5. Project Team & Qualifications
+## 6. Timeline & Service Delivery Schedule
+## 7. Pricing & Cost Breakdown
+## 8. Assumptions, Exclusions & Risks
+## 9. Conclusion & Call to Action
+## 10. Signature & Contact Block
 
-Make the language confident, professional, and benefit-oriented.
+Content Guidelines:
+- Use realistic Texas-based example rates with [PLACEHOLDERS].
+- Mention NEC compliance, lockout/tagout, arc flash safety, permits, Texas Master Electrician License.
+- Emphasize 24/7 emergency response.
+- Use persuasive but professional tone.
+- Length equivalent to 3–5 pages.
+- End with signature placeholders.
 
-Output ONLY the formatted proposal document — no extra explanations.
+Return ONLY the proposal document.
 """
+
 CLASSIFIER_SYSTEM_PROMPT = """
 You are a document classification expert.
 
@@ -115,4 +152,26 @@ Document:
 {document_text}
 
 Return only JSON.
+"""
+RFP_STRUCTURE_TEMPLATE = """
+Use this RFP structure as a reference when generating proposals:
+
+# Request for Proposal
+## Electrical Maintenance & Repair Services
+### Issued by: City of {city}
+### RFP Reference: {rfp_ref}
+### Issue Date: {issue_date}
+### Submission Deadline: {deadline}
+
+1. Introduction
+2. Project Scope
+3. Requirements
+   - Licensing
+   - Certifications
+   - Response time
+4. Submission Instructions
+5. Evaluation Criteria
+6. Attachments
+
+Always match output to this structure.
 """

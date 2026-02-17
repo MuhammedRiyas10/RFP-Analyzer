@@ -1,33 +1,38 @@
-import json
-import re
+# agents/classifier_agent.py
+
 from agents.base_agent import BaseAgent
 from agents.prompts import (
     CLASSIFIER_SYSTEM_PROMPT,
     CLASSIFICATION_PROMPT
 )
+from agents.schemas import ClassificationOutput
 
 
 class ClassifierAgent(BaseAgent):
 
     def __init__(self):
-        super().__init__(system_prompt=CLASSIFIER_SYSTEM_PROMPT, temperature=0)
-
-    def run(self, document_text: str):
-
-        prompt = CLASSIFICATION_PROMPT.format(
-            document_text=document_text[:4000]  # limit size
+        super().__init__(
+            system_prompt=CLASSIFIER_SYSTEM_PROMPT,
+            temperature=0
         )
 
-        response = self.invoke(prompt)
+    def run(self, document_text: str) -> dict:
 
-        cleaned = re.sub(r"```(?:json)?", "", response, flags=re.IGNORECASE)
-        cleaned = cleaned.replace("```", "").strip()
+        prompt = CLASSIFICATION_PROMPT.format(
+            document_text=document_text[:4000]
+        )
 
         try:
-            return json.loads(cleaned)
-        except:
+            structured_response = self.invoke_structured(
+                user_prompt=prompt,
+                schema=ClassificationOutput
+            )
+
+            return structured_response.model_dump()
+
+        except Exception:
             return {
                 "is_rfp": False,
                 "confidence": 0.0,
-                "reason": "Invalid classification output"
+                "reason": "Structured classification failed"
             }

@@ -1,27 +1,33 @@
-import json
-import re
+# agents/scope_agent.py
+
 from agents.base_agent import BaseAgent
 from agents.prompts import SCOPE_SYSTEM_PROMPT, SCOPE_EXTRACTION_PROMPT
+from agents.schemas import ScopeOutput
 
 
 class ScopeAgent(BaseAgent):
 
     def __init__(self):
-        super().__init__(system_prompt=SCOPE_SYSTEM_PROMPT, temperature=0)
+        super().__init__(
+            system_prompt=SCOPE_SYSTEM_PROMPT,
+            temperature=0
+        )
 
-    def run(self, rfp_text):
-        prompt = SCOPE_EXTRACTION_PROMPT.format(rfp_text=rfp_text)
-        response = self.invoke(prompt)
+    def run(self, rfp_text: str) -> dict:
 
-        cleaned = self._clean_response(response)
+        prompt = SCOPE_EXTRACTION_PROMPT.format(
+            rfp_text=rfp_text[:6000]  # prevent token overflow
+        )
 
         try:
-            return json.loads(cleaned)
-        except json.JSONDecodeError:
-            return {"error": "Invalid JSON", "raw": response}
+            structured_response = self.invoke_structured(
+                user_prompt=prompt,
+                schema=ScopeOutput
+            )
 
-    def _clean_response(self, text: str) -> str:
-        # Remove triple backticks and optional "json"
-        text = re.sub(r"```(?:json)?", "", text, flags=re.IGNORECASE)
-        text = text.replace("```", "")
-        return text.strip()
+            return structured_response.model_dump()
+
+        except Exception:
+            return {
+                "error": "Structured scope extraction failed"
+            }

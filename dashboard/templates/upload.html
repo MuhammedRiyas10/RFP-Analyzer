@@ -12,19 +12,25 @@
             font-family: 'Inter', sans-serif;
         }
 
+        /* Enhanced Glass Effect */
         .glass-effect {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
-        /* Loader CSS */
-        .loader {
-            border-top-color: #3498db;
-            -webkit-animation: spinner 1.5s linear infinite;
-            animation: spinner 1.5s linear infinite;
+        /* Spinner Animation */
+        .spinner {
+            border: 3px solid rgba(229, 231, 235, 0.5);
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 24px;
+            height: 24px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
         }
 
-        @keyframes spinner {
+        @keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
@@ -33,33 +39,174 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Fade In Animation */
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Checkmark Animation */
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #22c55e;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #22c55e;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .step-item {
+            transition: all 0.3s ease;
+        }
+
+        .step-item.active {
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .step-item.pending {
+            color: #9ca3af;
+        }
+
+        .step-item.completed {
+            color: #4b5563;
+        }
     </style>
     <script>
+        const steps = [
+            "Classifying document type...",
+            "Extracting scope of work...",
+            "Calculating material & labor costs...",
+            "Generating final proposal..."
+        ];
+
         function showLoading() {
-            document.getElementById('loading-overlay').classList.remove('hidden');
+            const overlay = document.getElementById('loading-overlay');
+            const stepContainer = document.getElementById('step-container');
+
+            // Show overlay with fade-in
+            overlay.classList.remove('hidden');
+
+            // Initialize steps
+            stepContainer.innerHTML = '';
+            steps.forEach((step, index) => {
+                const div = document.createElement('div');
+                div.className = `step-item flex items-center space-x-3 p-2 rounded ${index === 0 ? 'active' : 'pending'}`;
+                div.id = `step-${index}`;
+                div.innerHTML = `
+                    <div class="icon-container w-6 h-6 flex items-center justify-center">
+                        ${index === 0 ? '<div class="spinner"></div>' : '<div class="w-2 h-2 bg-gray-300 rounded-full"></div>'}
+                    </div>
+                    <span class="text-sm">${step}</span>
+                `;
+                stepContainer.appendChild(div);
+            });
+
+            let currentStep = 0;
+            const totalSteps = steps.length;
+
+            // Step animation logic
+            const interval = setInterval(() => {
+                if (currentStep < totalSteps) {
+                    // Mark current step as completed
+                    const currentEl = document.getElementById(`step-${currentStep}`);
+                    if (currentEl) {
+                        currentEl.classList.remove('active');
+                        currentEl.classList.add('completed');
+                        currentEl.querySelector('.icon-container').innerHTML = `
+                            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        `;
+                    }
+
+                    currentStep++;
+
+                    // Activate next step if exists
+                    if (currentStep < totalSteps) {
+                        const nextEl = document.getElementById(`step-${currentStep}`);
+                        if (nextEl) {
+                            nextEl.classList.remove('pending');
+                            nextEl.classList.add('active');
+                            nextEl.querySelector('.icon-container').innerHTML = '<div class="spinner"></div>';
+                        }
+                    } else {
+                        // All steps done, keep spinning on the last message or show "Finalizing"
+                        clearInterval(interval);
+                    }
+                }
+            }, 1200); // 1.2 seconds per step
         }
     </script>
 </head>
 
 <body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Loading Overlay -->
+    <!-- Enhanced Loading Overlay -->
     <div id="loading-overlay"
-        class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-            <h2 class="text-center text-gray-800 text-xl font-semibold">Analyzing RFP...</h2>
-            <p class="text-center text-gray-500 text-sm mt-2">This may take a few moments</p>
+        class="fixed inset-0 bg-gray-900/60 z-50 hidden flex items-center justify-center backdrop-blur-md transition-all duration-300">
+        <div
+            class="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl flex flex-col w-full max-w-sm border border-white/20 animate-fade-in mx-4">
+
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div
+                    class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 text-blue-600 mb-4">
+                    <svg class="w-6 h-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900">Processing Proposal</h2>
+                <p class="text-sm text-gray-500 mt-1">Our AI is analyzing your RFP...</p>
+            </div>
+
+            <!-- Steps Container -->
+            <div id="step-container" class="space-y-3 pl-2">
+                <!-- Steps will be injected here by JS -->
+            </div>
+
+            <!-- Footer hint -->
+            <div class="mt-8 text-center">
+                <p class="text-xs text-gray-400">Please do not close this window.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div
+            class="absolute top-0 left-1/4 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob">
+        </div>
+        <div
+            class="absolute top-0 right-1/4 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000">
+        </div>
+        <div
+            class="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000">
         </div>
     </div>
 
     <!-- Navbar / Header -->
-    <header class="w-full max-w-4xl mx-auto mb-8 text-center animate-fade-in-down">
-        <div class="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-blue-50 text-blue-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
-                </path>
+    <header class="w-full max-w-4xl mx-auto mb-8 text-center">
+        <div
+            class="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-white shadow-sm text-blue-600 ring-1 ring-gray-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
         </div>
         <h1 class="text-4xl font-bold text-gray-900 tracking-tight mb-2">Electrical RFP Analyzer</h1>
@@ -67,10 +214,11 @@
     </header>
 
     <!-- Main Upload Card -->
-    <main class="w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+    <main
+        class="w-full max-w-2xl bg-white/80 glass-effect rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative z-10">
 
         <!-- Header Strip -->
-        <div class="h-2 bg-gradient-to-r from-blue-500 to-indigo-600 w-full"></div>
+        <div class="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 w-full"></div>
 
         <div class="p-8">
             {% if error %}
@@ -85,91 +233,134 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-red-700 font-medium">
-                            {{ error }}
-                        </p>
+                        <p class="text-sm text-red-700 font-medium">{{ error }}</p>
                     </div>
                 </div>
             </div>
             {% endif %}
 
-            <form method="post" enctype="multipart/form-data" class="space-y-6" onsubmit="showLoading()">
+            <form method="post" enctype="multipart/form-data" class="space-y-8" onsubmit="showLoading()">
                 {% csrf_token %}
 
                 <!-- File Upload Section -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Upload RFP Document (PDF)</label>
-                    <div
-                        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-500 transition-colors duration-200 bg-gray-50 hover:bg-white group cursor-pointer relative">
+                <div class="group">
+                    <label class="block text-sm font-semibold text-gray-900 mb-2">Upload RFP Document (PDF)</label>
+                    <label for="file-upload"
+                        class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-500 hover:bg-blue-50/50 transition-all duration-200 cursor-pointer relative bg-gray-50/50">
                         <div class="space-y-1 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-blue-500 transition-colors"
-                                stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                <path
-                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
+                            <div
+                                class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-3 group-hover:scale-110 transition-transform duration-200">
+                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                            </div>
                             <div class="flex text-sm text-gray-600 justify-center">
-                                <label for="file-upload"
-                                    class="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                                    <span>Upload a file</span>
-                                    <input id="file-upload" name="rfp_file" type="file" class="sr-only">
-                                </label>
+                                <span
+                                    class="relative rounded-md font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                    <span>Click to upload</span>
+                                    <input id="file-upload" name="rfp_file" type="file" class="sr-only"
+                                        accept=".pdf,.txt">
+                                </span>
                                 <p class="pl-1">or drag and drop</p>
                             </div>
-                            <p class="text-xs text-gray-500">PDF or TXT up to 10MB</p>
+                            <p class="text-xs text-gray-500" id="file-name-display">PDF or TXT up to 10MB</p>
                         </div>
-                    </div>
+                    </label>
                 </div>
 
                 <!-- Divider -->
                 <div class="relative">
                     <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
+                        <div class="w-full border-t border-gray-200"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500 font-medium">OR</span>
+                        <span class="px-4 bg-white text-gray-400 font-medium">OR</span>
                     </div>
                 </div>
 
                 <!-- Text Area Section -->
                 <div>
-                    <label for="rfp_text" class="block text-sm font-semibold text-gray-700 mb-2">Paste RFP Text</label>
-                    <div class="mt-1">
-                        <textarea id="rfp_text" name="rfp_text" rows="6"
-                            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl p-3"
-                            placeholder="Paste the content of the RFP here..."></textarea>
+                    <label for="rfp_text" class="block text-sm font-semibold text-gray-900 mb-2">Paste RFP Text</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <textarea id="rfp_text" name="rfp_text" rows="5"
+                            class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl p-4 transition-shadow shadow-sm hover:shadow-md resize-none"
+                            placeholder="Paste the raw content of the RFP here if you don't have a file..."></textarea>
                     </div>
                 </div>
 
                 <!-- Submit Button -->
-                <div class="pt-4">
+                <div class="pt-2">
                     <button type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition hover:-translate-y-0.5 transition-duration-200">
+                        class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed">
                         Analyze RFP Document
                     </button>
+                    <p class="mt-3 text-center text-xs text-gray-400">
+                        By analyzing, you agree to our processing terms.
+                    </p>
                 </div>
             </form>
         </div>
-
-        <!-- Footer area of card -->
-        <div class="bg-gray-50 px-8 py-4 border-t border-gray-100 flex justify-between items-center">
-            <span class="text-xs text-gray-500">Secure & Confidential Processing</span>
-            <span class="text-xs text-gray-500">v1.0.0</span>
-        </div>
     </main>
 
+    <!-- Simple Footer -->
+    <footer class="mt-8 text-center text-gray-400 text-sm">
+        &copy; 2024 Electrical RFP Analyzer. All rights reserved.
+    </footer>
+
     <script>
-        // Simple script to show file name on selection
+        // File upload handling
         const fileInput = document.getElementById('file-upload');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const dropZone = fileInput.closest('label');
+
         fileInput.addEventListener('change', function (e) {
-            const fileName = e.target.files[0].name;
-            if (fileName) {
-                // Find a place to display it or just update the label text
-                const label = this.parentElement.querySelector('span');
-                label.innerText = fileName;
-                label.parentElement.parentElement.parentElement.classList.add('border-blue-500', 'bg-blue-50');
-            }
+            handleFile(e.target.files[0]);
         });
+
+        // Drag and drop events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('border-blue-500', 'bg-blue-50/50');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-blue-500', 'bg-blue-50/50');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) {
+                fileInput.files = files; // Update input files
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFile(file) {
+            if (file) {
+                fileNameDisplay.innerHTML = `<span class="text-blue-600 font-semibold">${file.name}</span>`;
+                dropZone.classList.add('border-blue-500', 'bg-blue-50/20');
+            }
+        }
     </script>
 </body>
 

@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import upload_rfp
 
 urlpatterns = [
-    path('', views.upload_rfp, name='upload_rfp'),
+    path("", upload_rfp, name="upload_rfp"),
 ]
