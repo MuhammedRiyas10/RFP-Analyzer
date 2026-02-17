@@ -1,0 +1,22 @@
+[
+  {
+    "item": "high-voltage copper cable",
+    "unit": "meters",
+    "price_per_unit": 1200
+  },
+  {
+    "item": "industrial switchboard",
+    "unit": "units",
+    "price_per_unit": 75000
+  },
+  {
+    "item": "diesel generator",
+    "unit": "units",
+    "price_per_unit": 650000
+  },
+  {
+    "item": "electrical panel board",
+    "unit": "units",
+    "price_per_unit": 50000
+  }
+]
